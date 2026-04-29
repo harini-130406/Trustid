@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Video KYC Verification - TrustID{% endblock %}
+
+{% block main_layout %}items-center justify-center{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-2xl mx-auto px-gutter py-xl">
+    <!-- Progress Section -->
+    <div class="mb-lg text-center">
+        <span class="font-label-caps text-label-caps text-on-surface-variant">Step 3 of 4 – Video Verification</span>
+        <div class="w-full h-1 bg-surface-container-high mt-sm rounded-full overflow-hidden max-w-md mx-auto">
+            <div class="w-3/4 h-full bg-secondary rounded-full"></div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg lg:p-xl">
+        <!-- Header -->
+        <div class="text-center mb-lg">
+            <div class="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center mx-auto mb-md">
+                <span class="material-symbols-outlined text-3xl text-on-primary-container">face</span>
+            </div>
+            <h1 class="font-h1 text-h1 text-primary mb-sm">Verify you're real, not a deepfake</h1>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+                Complete a quick video verification to confirm your identity and prevent fraud
+            </p>
+        </div>
+
+        <!-- Camera Preview Area -->
+        <div class="relative bg-surface-container-low rounded-lg overflow-hidden mb-lg" style="aspect-ratio: 4/3;">
+            <div id="camera-preview" class="w-full h-full flex items-center justify-center">
+                <!-- Camera Placeholder -->
+                <div class="text-center space-y-sm">
+                    <span class="material-symbols-outlined text-6xl text-on-surface-variant">photo_camera</span>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Camera preview will appear here</p>
+                </div>
+            </div>
+            
+            <!-- Overlay Instructions -->
+            <div id="instruction-overlay" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div class="bg-white rounded-lg p-lg max-w-sm mx-4">
+                    <div class="text-center space-y-sm">
+                        <span class="material-symbols-outlined text-4xl text-primary">info</span>
+                        <h3 class="font-h3 text-h3 text-primary">Get Ready for Verification</h3>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant">
+                            Make sure you're in a well-lit area and your face is clearly visible
+                        </p>
+                        <button onclick="startCamera()" class="bg-primary text-on-primary py-sm px-md rounded-lg font-button text-button hover:bg-primary-container transition-colors">
+                            Start Camera
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recording Indicator -->
+            <div id="recording-indicator" class="absolute top-4 right-4 hidden">
+                <div class="flex items-center gap-sm bg-error text-on-error px-sm py-xs rounded-full">
+                    <span class="w-2 h-2 bg-on-error rounded-full animate-pulse"></span>
+                    <span class="font-body-sm text-xs font-medium">Recording</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification Steps -->
+        <div class="space-y-lg mb-lg">
+            <div class="flex items-start gap-sm" id="step-1">
+                <div class="w-8 h-8 bg-primary text-on-primary rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span class="material-symbols-outlined text-sm font-medium">1</span>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-h3 text-h3 text-primary mb-xs">Center your face</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Position your face within the oval guide. Make sure both eyes are visible.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-sm opacity-50" id="step-2">
+                <div class="w-8 h-8 bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span class="material-symbols-outlined text-sm font-medium">2</span>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-h3 text-h3 text-on-surface-variant mb-xs">Blink twice</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Blink slowly twice when prompted to confirm liveness.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-sm opacity-50" id="step-3">
+                <div class="w-8 h-8 bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span class="material-symbols-outlined text-sm font-medium">3</span>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-h3 text-h3 text-on-surface-variant mb-xs">Turn your head</h3>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Slowly turn your head left and right when instructed.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col gap-sm">
+            <button 
+                id="start-verification-btn"
+                onclick="startVerification()" 
+                class="w-full bg-secondary text-on-secondary py-md px-lg rounded-lg font-button text-button hover:bg-on-secondary-fixed-variant active:opacity-70 transition-all duration-200 flex items-center justify-center gap-sm"
+            >
+                <span>Capture selfie & Start check</span>
+                <span class="material-symbols-outlined">camera</span>
+            </button>
+
+            <button 
+                id="retake-btn"
+                onclick="retakeVerification()" 
+                class="w-full bg-surface-container-low text-on-surface py-md px-lg rounded-lg font-button text-button hover:bg-surface-container active:opacity-70 transition-all duration-200 hidden"
+            >
+                Retake Verification
+            </button>
+        </div>
+
+        <!-- Security Information -->
+        <div class="mt-lg pt-lg border-t border-surface-container">
+            <div class="space-y-sm">
+                <div class="flex items-start gap-sm">
+                    <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">security</span>
+                    <p class="font-body-sm text-xs text-on-surface-variant leading-relaxed">
+                        Your video is processed using AI-powered deepfake detection technology to ensure authenticity.
+                    </p>
+                </div>
+                <div class="flex items-start gap-sm">
+                    <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">lock</span>
+                    <p class="font-body-sm text-xs text-on-surface-variant leading-relaxed">
+                        Video data is encrypted during transmission and deleted immediately after verification.
+                    </p>
+                </div>
+                <div class="flex items-start gap-sm">
+                    <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                    <p class="font-body-sm text-xs text-on-surface-variant leading-relaxed">
+                        Our technology detects presentation attacks, photo spoofing, and advanced deepfake attempts.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentStep = 1;
+let verificationInProgress = false;
+
+function startCamera() {
+    document.getElementById('instruction-overlay').classList.add('hidden');
+    showNotification('Camera started successfully!', 'success');
+    
+    // Simulate camera activation
+    setTimeout(() => {
+        document.getElementById('start-verification-btn').disabled = false;
+    }, 1000);
+}
+
+function startVerification() {
+    if (verificationInProgress) return;
+    
+    verificationInProgress = true;
+    document.getElementById('start-verification-btn').disabled = true;
+    document.getElementById('recording-indicator').classList.remove('hidden');
+    
+    // Simulate verification steps
+    simulateVerificationSteps();
+}
+
+function simulateVerificationSteps() {
+    const steps = [
+        { id: 'step-1', duration: 3000, instruction: 'Center your face' },
+        { id: 'step-2', duration: 2000, instruction: 'Blink twice' },
+        { id: 'step-3', duration: 3000, instruction: 'Turn your head slowly' }
+    ];
+    
+    let stepIndex = 0;
+    
+    function processStep() {
+        if (stepIndex < steps.length) {
+            const step = steps[stepIndex];
+            
+            // Activate current step
+            document.getElementById(step.id).classList.remove('opacity-50');
+            document.getElementById(step.id).querySelector('.w-8').className = 'w-8 h-8 bg-secondary text-on-secondary rounded-full flex items-center justify-center flex-shrink-0 mt-0.5';
+            document.getElementById(step.id).querySelector('h3').className = 'font-h3 text-h3 text-primary mb-xs';
+            
+            showNotification(step.instruction, 'info');
+            
+            setTimeout(() => {
+                // Complete current step
+                document.getElementById(step.id).querySelector('.w-8').innerHTML = '<span class="material-symbols-outlined text-sm">check</span>';
+                
+                stepIndex++;
+                if (stepIndex < steps.length) {
+                    processStep();
+                } else {
+                    completeVerification();
+                }
+            }, step.duration);
+        }
+    }
+    
+    processStep();
+}
+
+function completeVerification() {
+    document.getElementById('recording-indicator').classList.add('hidden');
+    showNotification('Verification complete! Processing results...', 'success');
+    
+    // Process the verification
+    processVideoKYC();
+}
+
+async function processVideoKYC() {
+    try {
+        const response = await postJSON('{{ url_for("process_video_kyc") }}', {});
+        
+        if (response.success) {
+            showNotification('Analysis complete!', 'success');
+            setTimeout(() => {
+                window.location.href = response.redirect;
+            }, 1500);
+        } else {
+            throw new Error(response.message || 'Verification failed');
+        }
+    } catch (error) {
+        showNotification(error.message || 'Verification failed', 'error');
+        resetVerification();
+    }
+}
+
+function retakeVerification() {
+    resetVerification();
+    startVerification();
+}
+
+function resetVerification() {
+    verificationInProgress = false;
+    document.getElementById('start-verification-btn').disabled = false;
+    document.getElementById('recording-indicator').classList.add('hidden');
+    document.getElementById('retake-btn').classList.add('hidden');
+    
+    // Reset steps
+    for (let i = 1; i <= 3; i++) {
+        const step = document.getElementById(`step-${i}`);
+        step.classList.add('opacity-50');
+        step.querySelector('.w-8').className = 'w-8 h-8 bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center flex-shrink-0 mt-0.5';
+        step.querySelector('.w-8').innerHTML = `<span class="material-symbols-outlined text-sm font-medium">${i}</span>`;
+        step.querySelector('h3').className = 'font-h3 text-h3 text-on-surface-variant mb-xs';
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('start-verification-btn').disabled = true;
+});
+</script>
+{% endblock %}

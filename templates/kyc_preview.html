@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Review KYC Details - TrustID{% endblock %}
+
+{% block main_layout %}items-center justify-center{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-3xl mx-auto px-gutter py-xl">
+    <!-- Progress Section -->
+    <div class="mb-lg text-center">
+        <span class="font-label-caps text-label-caps text-on-surface-variant">Step 2 of 4 – Review Details</span>
+        <div class="w-full h-1 bg-surface-container-high mt-sm rounded-full overflow-hidden max-w-md mx-auto">
+            <div class="w-2/4 h-full bg-secondary rounded-full"></div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg lg:p-xl">
+        <!-- Header -->
+        <div class="mb-lg border-b border-surface-container pb-lg">
+            <h1 class="font-h1 text-h1 text-primary mb-sm">Review your details from DigiLocker</h1>
+            <div class="flex flex-wrap items-center gap-sm mt-md">
+                <div class="inline-flex items-center px-3 py-1 rounded-full border border-secondary text-secondary-container bg-white">
+                    <span class="material-symbols-outlined text-[16px] mr-1" style="font-variation-settings: 'FILL' 1;">verified</span>
+                    <span class="font-label-caps text-[11px] text-on-secondary-container">Auto-filled from DigiLocker (Verified source)</span>
+                </div>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">Please confirm that these details match your official documents.</p>
+            </div>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-lg gap-y-md mb-xl">
+            <!-- Full Name -->
+            <div class="space-y-1">
+                <label class="font-label-caps text-label-caps text-on-surface-variant">FULL NAME</label>
+                <div class="bg-surface-container-low border border-outline-variant p-md rounded text-primary font-medium">
+                    {{ kyc_data.fullName }}
+                </div>
+            </div>
+
+            <!-- Date of Birth -->
+            <div class="space-y-1">
+                <label class="font-label-caps text-label-caps text-on-surface-variant">DATE OF BIRTH</label>
+                <div class="bg-surface-container-low border border-outline-variant p-md rounded text-primary font-medium">
+                    {{ kyc_data.dateOfBirth }}
+                </div>
+            </div>
+
+            <!-- PAN -->
+            <div class="space-y-1">
+                <label class="font-label-caps text-label-caps text-on-surface-variant">PAN</label>
+                <div class="bg-surface-container-low border border-outline-variant p-md rounded text-primary font-medium">
+                    {{ kyc_data.pan }}
+                </div>
+            </div>
+
+            <!-- Aadhaar -->
+            <div class="space-y-1">
+                <label class="font-label-caps text-label-caps text-on-surface-variant">AADHAAR NUMBER</label>
+                <div class="bg-surface-container-low border border-outline-variant p-md rounded text-primary font-medium">
+                    {{ kyc_data.aadhaar }}
+                </div>
+            </div>
+
+            <!-- Email (Full Width) -->
+            <div class="space-y-1">
+                <label class="font-label-caps text-label-caps text-on-surface-variant">EMAIL ADDRESS</label>
+                <div class="bg-surface-container-low border border-outline-variant p-md rounded text-primary font-medium">
+                    {{ kyc_data.email }}
+                </div>
+            </div>
+
+            <!-- Phone (Full Width) -->
+            <div class="space-y-1">
+                <label class="font-label-caps text-label-caps text-on-surface-variant">PHONE NUMBER</label>
+                <div class="bg-surface-container-low border border-outline-variant p-md rounded text-primary font-medium">
+                    {{ kyc_data.phone }}
+                </div>
+            </div>
+
+            <!-- Address (Full Width) -->
+            <div class="md:col-span-2 space-y-1">
+                <label class="font-label-caps text-label-caps text-on-surface-variant">RESIDENTIAL ADDRESS</label>
+                <div class="bg-surface-container-low border border-outline-variant p-md rounded text-primary font-medium leading-relaxed">
+                    {{ kyc_data.address }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Box -->
+        <div class="flex items-start gap-sm bg-surface-container-low p-md rounded-lg mb-lg border-l-4 border-primary">
+            <span class="material-symbols-outlined text-primary text-[20px]" data-icon="info">info</span>
+            <p class="font-body-sm text-body-sm text-on-surface">
+                If anything is incorrect, choose 'Edit information' to adjust your details before verification. Changes from DigiLocker data may increase risk and require extra checks.
+            </p>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col gap-sm">
+            <button 
+                onclick="continueToVideoKYC()" 
+                class="w-full bg-primary-container text-on-primary-container py-md px-lg rounded-lg font-button text-button hover:bg-primary active:opacity-70 transition-all duration-200 flex items-center justify-center gap-sm"
+            >
+                <span>Looks good – Continue to Video KYC</span>
+                <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+            
+            <button 
+                onclick="window.location.href='{{ url_for('kyc_edit') }}';" 
+                class="w-full bg-surface-container-low text-on-surface py-sm px-md rounded-lg font-button text-button hover:bg-surface-container active:opacity-70 transition-all duration-200"
+            >
+                <span class="material-symbols-outlined text-sm">edit</span>
+                Edit Information
+            </button>
+        </div>
+    </div>
+
+    <!-- Security Indicators -->
+    <div class="mt-xl text-center">
+        <div class="inline-flex items-center gap-xl text-on-surface-variant">
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-sm text-secondary">verified_user</span>
+                <span class="font-label-caps text-label-caps">DigiLocker Verified</span>
+            </div>
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-sm text-secondary">lock</span>
+                <span class="font-label-caps text-label-caps">Encrypted</span>
+            </div>
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-sm text-secondary">gpp_good</span>
+                <span class="font-label-caps text-label-caps">Secure</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function continueToVideoKYC() {
+    window.location.href = '{{ url_for("video_kyc") }}';
+}
+
+function proceedToVideo() {
+    window.location.href = '{{ url_for("video_kyc") }}';
+}
+
+// Add keyboard navigation
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        proceedToVideo();
+    }
+});
+</script>
+{% endblock %}

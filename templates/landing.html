@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}TrustID - Create Your Digital Identity{% endblock %}
+
+{% block main_layout %}items-center justify-center{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-4xl mx-auto px-gutter py-xl">
+    <!-- Hero Section -->
+    <div class="text-center mb-xl">
+        <div class="mb-lg">
+            <h1 class="font-h1 text-h1 text-primary mb-md">Create your TrustID</h1>
+            <p class="font-h2 text-h2 text-on-surface-variant mb-lg">AI‑resilient KYC you can reuse anywhere</p>
+        </div>
+        
+        <!-- Security Features Strip -->
+        <div class="flex flex-wrap justify-center gap-md mb-xl">
+            <div class="flex items-center gap-sm bg-surface-container-low px-lg py-md rounded-full">
+                <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+                <span class="font-body-sm text-body-sm text-secondary font-medium">Deepfake‑aware</span>
+            </div>
+            <div class="flex items-center gap-sm bg-surface-container-low px-lg py-md rounded-full">
+                <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">lock</span>
+                <span class="font-body-sm text-body-sm text-secondary font-medium">256-bit encrypted</span>
+            </div>
+            <div class="flex items-center gap-sm bg-surface-container-low px-lg py-md rounded-full">
+                <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">replay</span>
+                <span class="font-body-sm text-body-sm text-secondary font-medium">Reusable verification</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Action Cards -->
+    <div class="grid md:grid-cols-2 gap-lg max-w-2xl mx-auto">
+        <!-- Start KYC Card -->
+        <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-md">
+                    <span class="material-symbols-outlined text-3xl text-on-secondary">person_add</span>
+                </div>
+                <h2 class="font-h2 text-h2 text-primary mb-sm">New to TrustID?</h2>
+                <p class="font-body-sm text-body-sm text-on-surface-variant mb-lg">
+                    Complete KYC once and reuse your verified identity across multiple financial services.
+                </p>
+                <a href="{{ url_for('signup') }}" class="w-full bg-secondary text-on-secondary py-md px-lg rounded-lg font-button text-button hover:bg-on-secondary-fixed-variant active:opacity-70 transition-all duration-200 inline-block">
+                    Start KYC
+                </a>
+            </div>
+        </div>
+
+        <!-- Login Card -->
+        <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center mx-auto mb-md">
+                    <span class="material-symbols-outlined text-3xl text-on-primary-container">login</span>
+                </div>
+                <h2 class="font-h2 text-h2 text-primary mb-sm">Already have TrustID?</h2>
+                <p class="font-body-sm text-body-sm text-on-surface-variant mb-lg">
+                    Access your wallet and manage your verified identity credentials.
+                </p>
+                <a href="{{ url_for('login') }}" class="w-full bg-primary-container text-on-primary-container py-md px-lg rounded-lg font-button text-button hover:bg-primary active:opacity-70 transition-all duration-200 inline-block">
+                    Log in
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trust Indicators -->
+    <div class="mt-xl text-center">
+        <div class="inline-flex items-center gap-xl text-on-surface-variant">
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-sm">verified_user</span>
+                <span class="font-label-caps text-label-caps">ISO 27001</span>
+            </div>
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-sm">gpp_good</span>
+                <span class="font-label-caps text-label-caps">RBI COMPLIANT</span>
+            </div>
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-sm">security</span>
+                <span class="font-label-caps text-label-caps">SECURED</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Overview -->
+    <div class="mt-xl grid md:grid-cols-3 gap-lg text-center">
+        <div class="bg-surface-container-low rounded-lg p-md">
+            <span class="material-symbols-outlined text-3xl text-primary mb-sm">speed</span>
+            <h3 class="font-h3 text-h3 text-primary mb-xs">Lightning Fast</h3>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+                Complete KYC in under 5 minutes with AI-powered verification
+            </p>
+        </div>
+        <div class="bg-surface-container-low rounded-lg p-md">
+            <span class="material-symbols-outlined text-3xl text-primary mb-sm">security</span>
+            <h3 class="font-h3 text-h3 text-primary mb-xs">Bank-level Security</h3>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+                Advanced fraud detection and deepfake prevention technology
+            </p>
+        </div>
+        <div class="bg-surface-container-low rounded-lg p-md">
+            <span class="material-symbols-outlined text-3xl text-primary mb-sm">share</span>
+            <h3 class="font-h3 text-h3 text-primary mb-xs">Share Selectively</h3>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+                Control exactly what information you share with each service
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

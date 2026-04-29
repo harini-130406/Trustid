@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}Connect DigiLocker - TrustID KYC{% endblock %}
+
+{% block main_layout %}items-center justify-center{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-lg mx-auto px-gutter py-xl">
+    <!-- Progress Section -->
+    <div class="mb-lg text-center">
+        <span class="font-label-caps text-label-caps text-on-surface-variant">Step 1 of 4 – Connect DigiLocker</span>
+        <div class="w-full h-1 bg-surface-container-high mt-sm rounded-full overflow-hidden max-w-md mx-auto">
+            <div class="w-1/4 h-full bg-secondary rounded-full"></div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg md:p-xl">
+        <!-- Header -->
+        <div class="text-center mb-lg">
+            <div class="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-md">
+                <img src="https://lh3.googleusercontent.com/aida/ADBb0ugomTZAZpzZbkaFQMIWJwGIMy2YS8FndFPb07bXGm-b0haGmQQi-9HXJW0zhX3Or9LeV_MmN1zuKQ-pabXV-NeviJuk_S4zTJsxg9J6K-lWW6RvF5nkpdFgw0A3d_4XL_RD-RRSjv7UeqbuGDmTVJT5UUQAOUfoNQIqU8_cEONYv5Qmrqkc_L-ReTHXpqvh-ocQGmeftBrek7B_iUahJAzwaL2yCF2Hex_oro64XahwWIk63e3h-eIJStDSqW9lrRsaF1MGv1I" alt="DigiLocker" class="w-12 h-12 object-contain" />
+            </div>
+            <h1 class="font-h1 text-h1 text-primary mb-sm">Connect DigiLocker</h1>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+                Securely fetch your official identity documents from DigiLocker to complete KYC verification
+            </p>
+        </div>
+
+        <!-- DigiLocker Integration Card -->
+        <div class="border border-outline-variant rounded-lg p-lg mb-lg bg-surface-bright">
+            <div class="flex items-center gap-md mb-md">
+                <div class="w-12 h-12 bg-white rounded-lg border border-outline-variant flex items-center justify-center p-xs overflow-hidden">
+                    <img src="https://lh3.googleusercontent.com/aida/ADBb0ugomTZAZpzZbkaFQMIWJwGIMy2YS8FndFPb07bXGm-b0haGmQQi-9HXJW0zhX3Or9LeV_MmN1zuKQ-pabXV-NeviJuk_S4zTJsxg9J6K-lWW6RvF5nkpdFgw0A3d_4XL_RD-RRSjv7UeqbuGDmTVJT5UUQAOUfoNQIqU8_cEONYv5Qmrqkc_L-ReTHXpqvh-ocQGmeftBrek7B_iUahJAzwaL2yCF2Hex_oro64XahwWIk63e3h-eIJStDSqW9lrRsaF1MGv1I" alt="Official DigiLocker logo" class="w-full h-full object-contain" />
+                </div>
+                <div>
+                    <p class="font-h3 text-h3 text-on-surface">DigiLocker</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">Government-issued documents</p>
+                </div>
+            </div>
+            
+            <div class="space-y-sm">
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <span class="font-body-sm text-sm text-on-surface">Aadhaar Card</span>
+                </div>
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <span class="font-body-sm text-sm text-on-surface">PAN Card</span>
+                </div>
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <span class="font-body-sm text-sm text-on-surface">Address Proof</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Form -->
+        <div id="connection-form" class="space-y-lg">
+            <!-- Phone Number Input -->
+            <div class="space-y-sm">
+                <label for="phone" class="font-label-caps text-label-caps text-on-surface-variant">REGISTERED PHONE NUMBER</label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    required
+                    class="w-full border border-outline-variant rounded-lg p-md font-body-main text-primary focus:border-primary-container focus:ring-0 transition-colors bg-white"
+                    placeholder="+91-9876543210"
+                    maxlength="15"
+                />
+                <p class="font-body-sm text-xs text-on-surface-variant">
+                    Enter the phone number linked to your DigiLocker account
+                </p>
+            </div>
+
+            <!-- Connect Button -->
+            <button 
+                onclick="sendOTP()" 
+                class="w-full bg-secondary text-on-secondary py-md px-lg rounded-lg font-button text-button hover:bg-on-secondary-fixed-variant active:opacity-70 transition-all duration-200 flex items-center justify-center gap-sm"
+            >
+                <span>Send OTP</span>
+                <span class="material-symbols-outlined">send</span>
+            </button>
+        </div>
+
+        <!-- OTP Verification Form (Hidden Initially) -->
+        <div id="otp-form" class="space-y-lg hidden">
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-md">
+                <div class="flex items-start gap-sm">
+                    <span class="material-symbols-outlined text-amber-600 text-sm" style="font-variation-settings: 'FILL' 1;">info</span>
+                    <div>
+                        <p class="font-body-sm text-sm text-amber-800 font-medium">OTP Sent</p>
+                        <p class="font-body-sm text-xs text-amber-700">Demo OTP: <strong>123456</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OTP Input -->
+            <div class="space-y-sm">
+                <label for="otp" class="font-label-caps text-label-caps text-on-surface-variant">ENTER OTP</label>
+                <div class="flex gap-sm justify-center">
+                    <input type="text" maxlength="1" class="w-12 h-12 text-center border border-outline-variant rounded-lg font-body-main text-primary focus:border-primary-container focus:ring-0" onkeyup="moveToNext(this, 'otp2')" id="otp1">
+                    <input type="text" maxlength="1" class="w-12 h-12 text-center border border-outline-variant rounded-lg font-body-main text-primary focus:border-primary-container focus:ring-0" onkeyup="moveToNext(this, 'otp3')" id="otp2">
+                    <input type="text" maxlength="1" class="w-12 h-12 text-center border border-outline-variant rounded-lg font-body-main text-primary focus:border-primary-container focus:ring-0" onkeyup="moveToNext(this, 'otp4')" id="otp3">
+                    <input type="text" maxlength="1" class="w-12 h-12 text-center border border-outline-variant rounded-lg font-body-main text-primary focus:border-primary-container focus:ring-0" onkeyup="moveToNext(this, 'otp5')" id="otp4">
+                    <input type="text" maxlength="1" class="w-12 h-12 text-center border border-outline-variant rounded-lg font-body-main text-primary focus:border-primary-container focus:ring-0" onkeyup="moveToNext(this, 'otp6')" id="otp5">
+                    <input type="text" maxlength="1" class="w-12 h-12 text-center border border-outline-variant rounded-lg font-body-main text-primary focus:border-primary-container focus:ring-0" onkeyup="moveToNext(this, null)" id="otp6">
+                </div>
+                <p class="font-body-sm text-xs text-on-surface-variant text-center">
+                    Enter the 6-digit OTP sent to your registered phone number
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-sm">
+                <button 
+                    onclick="verifyOTP()" 
+                    class="w-full bg-secondary text-on-secondary py-md px-lg rounded-lg font-button text-button hover:bg-on-secondary-fixed-variant active:opacity-70 transition-all duration-200 flex items-center justify-center gap-sm"
+                >
+                    <span>Verify & Fetch Details</span>
+                    <span class="material-symbols-outlined">check_circle</span>
+                </button>
+                <button 
+                    onclick="resendOTP()" 
+                    class="w-full bg-surface-container-low text-on-surface py-md px-lg rounded-lg font-button text-button hover:bg-surface-container active:opacity-70 transition-all duration-200"
+                >
+                    Resend OTP
+                </button>
+                <button 
+                    onclick="backToForm()" 
+                    class="w-full text-primary py-md px-lg rounded-lg font-button text-button hover:bg-primary-container hover:text-on-primary-container transition-all duration-200"
+                >
+                    Change Phone Number
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State (Hidden Initially) -->
+        <div id="loading-state" class="text-center space-y-lg hidden">
+            <div class="loading-spinner mx-auto w-8 h-8 border-2 border-secondary border-t-transparent rounded-full"></div>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">Verifying OTP and fetching your documents...</p>
+        </div>
+
+        <!-- Security Information -->
+        <div class="mt-lg pt-lg border-t border-surface-container">
+            <div class="space-y-sm">
+                <div class="flex items-start gap-sm">
+                    <span class="material-symbols-outlined text-outline text-sm">lock</span>
+                    <p class="font-body-sm text-xs text-on-surface-variant leading-relaxed">
+                        We only read your documents to verify identity. Your data remains encrypted and under your control at all times.
+                    </p>
+                </div>
+                <div class="flex items-start gap-sm">
+                    <span class="material-symbols-outlined text-outline text-sm">shield_with_heart</span>
+                    <p class="font-body-sm text-xs text-on-surface-variant leading-relaxed">
+                        Connection is secured with 256-bit encryption and complies with RBI guidelines for digital KYC.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="mt-lg text-center">
+            <p class="font-body-sm text-body-sm text-outline">
+                Having trouble? <a href="#" class="text-primary-container font-semibold hover:underline">Contact support</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+function sendOTP() {
+    const phone = document.getElementById('phone').value.trim();
+    
+    if (!phone || !validatePhone(phone)) {
+        showNotification('Please enter a valid phone number', 'error');
+        return;
+    }
+    
+    // Show OTP form
+    document.getElementById('connection-form').classList.add('hidden');
+    document.getElementById('otp-form').classList.remove('hidden');
+    
+    // Focus first OTP input
+    document.getElementById('otp1').focus();
+    
+    showNotification('OTP sent successfully! Use 123456 for demo', 'success');
+}
+
+function moveToNext(current, nextFieldId) {
+    if (current.value.length === 1) {
+        if (nextFieldId) {
+            document.getElementById(nextFieldId).focus();
+        } else {
+            current.blur();
+        }
+    }
+}
+
+function getOTPValue() {
+    let otp = '';
+    for (let i = 1; i <= 6; i++) {
+        otp += document.getElementById('otp' + i).value;
+    }
+    return otp;
+}
+
+async function verifyOTP() {
+    const otp = getOTPValue();
+    
+    if (otp.length !== 6) {
+        showNotification('Please enter complete 6-digit OTP', 'error');
+        return;
+    }
+    
+    const phone = document.getElementById('phone').value.trim();
+    
+    // Show loading state
+    document.getElementById('otp-form').classList.add('hidden');
+    document.getElementById('loading-state').classList.remove('hidden');
+    
+    try {
+        const response = await postForm('{{ url_for("digilocker_verify") }}', new FormData(document.createElement('form')));
+        
+        const formData = new FormData();
+        formData.append('phone', phone);
+        formData.append('otp', otp);
+        
+        const result = await postForm('{{ url_for("digilocker_verify") }}', formData);
+        
+        if (result.success) {
+            showNotification('DigiLocker connected successfully!', 'success');
+            setTimeout(() => {
+                window.location.href = result.redirect;
+            }, 1000);
+        } else {
+            throw new Error(result.message || 'Verification failed');
+        }
+    } catch (error) {
+        showNotification(error.message || 'OTP verification failed', 'error');
+        // Hide loading and show OTP form again
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('otp-form').classList.remove('hidden');
+    }
+}
+
+function resendOTP() {
+    showNotification('OTP resent successfully!', 'success');
+    // Clear OTP inputs
+    for (let i = 1; i <= 6; i++) {
+        document.getElementById('otp' + i).value = '';
+    }
+    document.getElementById('otp1').focus();
+}
+
+function backToForm() {
+    document.getElementById('otp-form').classList.add('hidden');
+    document.getElementById('connection-form').classList.remove('hidden');
+    
+    // Clear OTP inputs
+    for (let i = 1; i <= 6; i++) {
+        document.getElementById('otp' + i).value = '';
+    }
+}
+
+// Handle paste event for OTP
+document.addEventListener('paste', function(e) {
+    const otpInputs = ['otp1', 'otp2', 'otp3', 'otp4', 'otp5', 'otp6'];
+    const activeElement = document.activeElement;
+    
+    if (otpInputs.includes(activeElement.id)) {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+        
+        for (let i = 0; i < pastedData.length && i < 6; i++) {
+            document.getElementById('otp' + (i + 1)).value = pastedData[i];
+        }
+        
+        // Focus next empty input or last if all filled
+        const nextEmpty = Math.min(pastedData.length + 1, 6);
+        if (nextEmpty <= 6) {
+            document.getElementById('otp' + nextEmpty).focus();
+        }
+    }
+});
+
+// Phone number formatting
+document.getElementById('phone').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 0 && value[0] !== '+') {
+        value = '+' + value;
+    }
+    e.target.value = value;
+});
+</script>
+{% endblock %}

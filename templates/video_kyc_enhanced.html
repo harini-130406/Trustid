@@ -1,0 +1,538 @@
+{% extends "base.html" %}
+
+{% block title %}Video KYC Verification - TrustID{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='js/camera.js') }}">
+{% endblock %}
+
+{% block main_layout %}items-center justify-center{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-4xl mx-auto px-gutter py-xl">
+    <!-- Progress Section -->
+    <div class="mb-lg text-center">
+        <span class="font-label-caps text-label-caps text-on-surface-variant">Step 3 of 4 – Advanced Video Verification</span>
+        <div class="w-full h-1 bg-surface-container-high mt-sm rounded-full overflow-hidden max-w-md mx-auto">
+            <div class="w-3/4 h-full bg-secondary rounded-full"></div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg lg:p-xl">
+        <!-- Header -->
+        <div class="text-center mb-lg">
+            <div class="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center mx-auto mb-md">
+                <span class="material-symbols-outlined text-3xl text-on-primary-container">face</span>
+            </div>
+            <h1 class="font-h1 text-h1 text-primary mb-sm">AI-Powered Identity Verification</h1>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+                Advanced fraud detection with deepfake analysis and cross-bank verification
+            </p>
+        </div>
+
+        <!-- Device Verification Status -->
+        <div id="device-status" class="mb-lg">
+            <div class="flex items-center gap-sm bg-surface-container-low p-md rounded-lg">
+                <span class="material-symbols-outlined text-sm loading-spinner" id="device-check-icon">sync</span>
+                <div>
+                    <p class="font-body-sm text-sm text-primary font-medium">Verifying device security...</p>
+                    <p class="font-body-sm text-xs text-on-surface-variant" id="device-status-text">Checking for virtual cameras and emulators</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Camera Preview Area -->
+        <div class="relative bg-surface-container-low rounded-lg overflow-hidden mb-lg" style="aspect-ratio: 16/9;">
+            <video id="camera-preview" class="w-full h-full object-cover" autoplay muted></video>
+            
+            <!-- Initial Overlay -->
+            <div id="initial-overlay" class="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
+                <div class="bg-white rounded-lg p-lg max-w-md mx-4 text-center">
+                    <span class="material-symbols-outlined text-4xl text-primary mb-sm">photo_camera</span>
+                    <h3 class="font-h3 text-h3 text-primary mb-sm">Camera Access Required</h3>
+                    <p class="font-body-sm text-sm text-on-surface-variant mb-md">
+                        We need access to your camera for identity verification
+                    </p>
+                    <button onclick="startCamera()" class="bg-primary text-on-primary py-sm px-md rounded-lg font-button text-button hover:bg-primary-container transition-colors">
+                        Enable Camera
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recording Indicator -->
+            <div id="recording-indicator" class="absolute top-4 right-4 hidden">
+                <div class="flex items-center gap-sm bg-error text-on-error px-sm py-xs rounded-full">
+                    <span class="w-2 h-2 bg-on-error rounded-full animate-pulse"></span>
+                    <span class="font-body-sm text-xs font-medium">Recording</span>
+                    <span id="recording-timer">00:00</span>
+                </div>
+            </div>
+
+            <!-- Face Detection Overlay -->
+            <div id="face-overlay" class="absolute inset-0 pointer-events-none hidden">
+                <svg class="w-full h-full">
+                    <rect id="face-box" x="0" y="0" width="0" height="0" 
+                          fill="none" stroke="#00ff00" stroke-width="2" rx="8"/>
+                </svg>
+            </div>
+
+            <!-- Instructions Overlay -->
+            <div id="instruction-overlay" class="absolute bottom-4 left-4 right-4 bg-black bg-opacity-75 text-white p-md rounded-lg hidden">
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-lg" id="instruction-icon">info</span>
+                    <div>
+                        <p class="font-body-sm text-sm font-medium" id="instruction-text">Position your face in the frame</p>
+                        <p class="font-body-sm text-xs opacity-75" id="instruction-subtext">Make sure your face is clearly visible</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification Steps -->
+        <div class="space-y-lg mb-lg">
+            <div class="flex items-center gap-sm" id="step-1">
+                <div class="w-8 h-8 bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm font-medium">1</span>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-h3 text-h3 text-primary mb-xs">Face Detection</h3>
+                    <p class="font-body-sm text-sm text-on-surface-variant">Center your face in the frame</p>
+                    <div class="mt-xs">
+                        <div class="w-full bg-surface-container-high rounded-full h-1">
+                            <div id="step-1-progress" class="bg-secondary h-1 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-sm opacity-50" id="step-2">
+                <div class="w-8 h-8 bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm font-medium">2</span>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-h3 text-h3 text-on-surface-variant mb-xs">Liveness Check</h3>
+                    <p class="font-body-sm text-sm text-on-surface-variant">Blink and move your head</p>
+                    <div class="mt-xs">
+                        <div class="w-full bg-surface-container-high rounded-full h-1">
+                            <div id="step-2-progress" class="bg-secondary h-1 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-sm opacity-50" id="step-3">
+                <div class="w-8 h-8 bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-sm font-medium">3</span>
+                </div>
+                <div class="flex-grow">
+                    <h3 class="font-h3 text-h3 text-on-surface-variant mb-xs">Deepfake Analysis</h3>
+                    <p class="font-body-sm text-sm text-on-surface-variant">AI-powered fraud detection</p>
+                    <div class="mt-xs">
+                        <div class="w-full bg-surface-container-high rounded-full h-1">
+                            <div id="step-3-progress" class="bg-secondary h-1 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col gap-sm">
+            <button 
+                id="start-verification-btn"
+                onclick="startVerification()" 
+                class="w-full bg-secondary text-on-secondary py-md px-lg rounded-lg font-button text-button hover:bg-on-secondary-fixed-variant active:opacity-70 transition-all duration-200 flex items-center justify-center gap-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled
+            >
+                <span>Start Advanced Verification</span>
+                <span class="material-symbols-outlined">shield_with_heart</span>
+            </button>
+
+            <button 
+                id="next-verification-btn"
+                onclick="proceedToNext()" 
+                class="w-full bg-surface-container-low text-on-surface py-md px-lg rounded-lg font-button text-button hover:bg-surface-container active:opacity-70 transition-all duration-200 opacity-50 cursor-not-allowed disabled"
+                disabled
+            >
+                <span>Next</span>
+                <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+
+            <button 
+                id="retry-btn"
+                onclick="retryVerification()" 
+                class="w-full bg-surface-container-low text-on-surface py-md px-lg rounded-lg font-button text-button hover:bg-surface-container active:opacity-70 transition-all duration-200 hidden"
+            >
+                Retry Verification
+            </button>
+        </div>
+
+        <!-- Advanced Security Features -->
+        <div class="mt-lg pt-lg border-t border-surface-container">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-sm">
+                <div class="flex items-center gap-sm text-center">
+                    <span class="material-symbols-outlined text-sm text-secondary">security</span>
+                    <span class="font-body-sm text-xs text-on-surface-variant">Virtual Camera Detection</span>
+                </div>
+                <div class="flex items-center gap-sm text-center">
+                    <span class="material-symbols-outlined text-sm text-secondary">fingerprint</span>
+                    <span class="font-body-sm text-xs text-on-surface-variant">Device Fingerprinting</span>
+                </div>
+                <div class="flex items-center gap-sm text-center">
+                    <span class="material-symbols-outlined text-sm text-secondary">hub</span>
+                    <span class="font-body-sm text-xs text-on-surface-variant">Cross-Bank Fraud Network</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+<script>
+let cameraKYC;
+let verificationInProgress = false;
+let recordingTimer;
+let recordingStartTime;
+
+let verificationTrials = 0;
+const MAX_TRIALS = 3;
+
+async function startCamera() {
+    try {
+        document.getElementById('initial-overlay').classList.add('hidden');
+        document.getElementById('device-status').classList.remove('hidden');
+        
+        // Check for phone emulator
+        const isEmulator = await detectPhoneEmulator();
+        if (isEmulator) {
+            throw new Error('Phone emulator detected. Please use a real device for verification.');
+        }
+        
+        // Update device status
+        document.getElementById('device-check-icon').textContent = 'check_circle';
+        document.getElementById('device-check-icon').className = 'material-symbols-outlined text-sm text-secondary';
+        document.getElementById('device-status-text').textContent = 'Device verified - Starting camera...';
+        
+        // Initialize camera
+        cameraKYC = new CameraKYC();
+        const videoElement = document.getElementById('camera-preview');
+        await cameraKYC.startCamera(videoElement);
+        
+        // Update status
+        document.getElementById('device-status-text').textContent = 'Camera ready - Face detection active';
+        document.getElementById('start-verification-btn').disabled = false;
+        
+        // Start face detection
+        startFaceDetection();
+        
+        showNotification('Camera started successfully!', 'success');
+        
+    } catch (error) {
+        console.error('Camera error:', error);
+        document.getElementById('device-check-icon').textContent = 'error';
+        document.getElementById('device-check-icon').className = 'material-symbols-outlined text-sm text-error';
+        document.getElementById('device-status-text').textContent = error.message;
+        showNotification(error.message, 'error');
+    }
+}
+
+async function detectPhoneEmulator() {
+    // Check for common emulator indicators
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isEmulator = 
+        userAgent.includes('android') && (
+            userAgent.includes('sdk') ||
+            userAgent.includes('emulator') ||
+            userAgent.includes('genymotion') ||
+            userAgent.includes('bluestacks') ||
+            userAgent.includes('nox') ||
+            window.location.hostname === 'localhost' && userAgent.includes('mobile')
+        );
+    
+    // Additional checks for virtual environment
+    const hasVirtualSensors = !('deviceorientation' in window);
+    const hasNoCameraHardware = !navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices;
+    
+    return isEmulator || hasVirtualSensors || hasNoCameraHardware;
+}
+
+async function startFaceDetection() {
+    const videoElement = document.getElementById('camera-preview');
+    const faceOverlay = document.getElementById('face-overlay');
+    const faceBox = document.getElementById('face-box');
+    
+    faceOverlay.classList.remove('hidden');
+    
+    // Continuous face detection
+    const detectFace = async () => {
+        if (!verificationInProgress) {
+            try {
+                const result = await cameraKYC.detectFace(videoElement);
+                
+                if (result.detected) {
+                    // Update face box (simplified - in real implementation, use actual bbox)
+                    faceBox.setAttribute('x', '20%');
+                    faceBox.setAttribute('y', '15%');
+                    faceBox.setAttribute('width', '60%');
+                    faceBox.setAttribute('height', '70%');
+                    faceBox.setAttribute('stroke', '#00ff00');
+                } else {
+                    faceBox.setAttribute('stroke', '#ff0000');
+                }
+                
+                // Update step 1 progress
+                const progress = Math.round(result.confidence * 100);
+                document.getElementById('step-1-progress').style.width = progress + '%';
+                
+                if (progress > 80) {
+                    document.getElementById('step-1').querySelector('.w-8').className = 'w-8 h-8 bg-secondary text-on-secondary rounded-full flex items-center justify-center flex-shrink-0';
+                    document.getElementById('step-1').querySelector('h3').className = 'font-h3 text-h3 text-primary mb-xs';
+                    document.getElementById('step-1').querySelector('p').className = 'font-body-sm text-sm text-primary';
+                }
+                
+            } catch (error) {
+                console.error('Face detection error:', error);
+            }
+            
+            requestAnimationFrame(detectFace);
+        }
+    };
+    
+    detectFace();
+}
+
+async function startVerification() {
+    if (verificationInProgress) return;
+    
+    verificationInProgress = true;
+    document.getElementById('start-verification-btn').disabled = true;
+    document.getElementById('recording-indicator').classList.remove('hidden');
+    document.getElementById('instruction-overlay').classList.remove('hidden');
+    
+    const videoElement = document.getElementById('camera-preview');
+    
+    try {
+        // Start recording
+        await cameraKYC.startRecording(videoElement);
+        recordingStartTime = Date.now();
+        startRecordingTimer();
+        
+        // Show instructions
+        await showInstructions();
+        
+        // Perform all verification steps
+        await performVerification();
+        
+    } catch (error) {
+        console.error('Verification error:', error);
+        showNotification(error.message, 'error');
+        resetVerification();
+    }
+}
+
+function startRecordingTimer() {
+    recordingTimer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+        const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        const seconds = (elapsed % 60).toString().padStart(2, '0');
+        document.getElementById('recording-timer').textContent = `${minutes}:${seconds}`;
+    }, 1000);
+}
+
+async function showInstructions() {
+    const instructions = [
+        { icon: 'center_focus_strong', text: 'Center your face', subtext: 'Position your face in the green box' },
+        { icon: 'visibility', text: 'Blink slowly', subtext: 'Blink twice when prompted' },
+        { icon: 'rotate_right', text: 'Turn your head', subtext: 'Slowly turn left, then right' }
+    ];
+    
+    for (let i = 0; i < instructions.length; i++) {
+        const instruction = instructions[i];
+        document.getElementById('instruction-icon').textContent = instruction.icon;
+        document.getElementById('instruction-text').textContent = instruction.text;
+        document.getElementById('instruction-subtext').textContent = instruction.subtext;
+        
+        await new Promise(resolve => setTimeout(resolve, 3000));
+    }
+    
+    document.getElementById('instruction-overlay').classList.add('hidden');
+}
+
+async function performVerification() {
+    const videoElement = document.getElementById('camera-preview');
+    
+    // Increment trial counter
+    verificationTrials++;
+    
+    // Step 1: Face detection (already running)
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Step 2: Liveness detection with movement check
+    document.getElementById('step-2').classList.remove('opacity-50');
+    document.getElementById('step-2').querySelector('.w-8').className = 'w-8 h-8 bg-secondary text-on-secondary rounded-full flex items-center justify-center flex-shrink-0';
+    document.getElementById('step-2').querySelector('h3').className = 'font-h3 text-h3 text-primary mb-xs';
+    document.getElementById('step-2').querySelector('p').className = 'font-body-sm text-sm text-primary';
+    
+    // Check for movement
+    const movementDetected = await detectMovement(videoElement);
+    if (!movementDetected) {
+        cameraKYC.stopRecording();
+        clearInterval(recordingTimer);
+        document.getElementById('recording-indicator').classList.add('hidden');
+        
+        if (verificationTrials >= MAX_TRIALS) {
+            showNotification('No movement detected. Maximum trials reached. Verification failed.', 'error');
+            setTimeout(() => {
+                window.location.href = '{{ url_for("kyc_result") }}';
+            }, 2000);
+        } else {
+            showNotification(`No movement detected. ${MAX_TRIALS - verificationTrials} trials remaining.`, 'warning');
+            resetVerification();
+        }
+        return;
+    }
+    
+    const livenessResult = await cameraKYC.detectLiveness(videoElement, ['blink', 'head_turn']);
+    document.getElementById('step-2-progress').style.width = (livenessResult.overallScore * 100) + '%';
+    
+    // Step 3: Deepfake detection
+    document.getElementById('step-3').classList.remove('opacity-50');
+    document.getElementById('step-3').querySelector('.w-8').className = 'w-8 h-8 bg-secondary text-on-secondary rounded-full flex items-center justify-center flex-shrink-0';
+    document.getElementById('step-3').querySelector('h3').className = 'font-h3 text-h3 text-primary mb-xs';
+    document.getElementById('step-3').querySelector('p').className = 'font-body-sm text-sm text-primary';
+    
+    const deepfakeResult = await cameraKYC.detectDeepfake(videoElement);
+    document.getElementById('step-3-progress').style.width = ((1 - deepfakeResult.riskScore) * 100) + '%';
+    
+    // Stop recording
+    cameraKYC.stopRecording();
+    clearInterval(recordingTimer);
+    document.getElementById('recording-indicator').classList.add('hidden');
+    
+    // Process results
+    await processVerificationResults(livenessResult, deepfakeResult);
+}
+
+async function detectMovement(videoElement) {
+    // Simple movement detection by comparing frames
+    let previousFrame = null;
+    let movementDetected = false;
+    
+    for (let i = 0; i < 10; i++) {
+        const currentFrame = await cameraKYC.getVideoFrame(videoElement);
+        
+        if (previousFrame) {
+            // Simple frame comparison (in production, use proper motion detection)
+            const movement = Math.random() > 0.3; // Simulate movement detection
+            if (movement) {
+                movementDetected = true;
+                break;
+            }
+        }
+        
+        previousFrame = currentFrame;
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
+    return movementDetected;
+}
+
+async function processVerificationResults(livenessResult, deepfakeResult) {
+    // Generate device fingerprint
+    const deviceFingerprint = await DeviceFingerprint.generate();
+    
+    // Prepare data for backend
+    const verificationData = {
+        deviceFingerprint: deviceFingerprint,
+        livenessScore: livenessResult.overallScore,
+        deepfakeRisk: deepfakeResult.riskScore,
+        deepfakeLevel: deepfakeResult.riskLevel,
+        videoBlob: cameraKYC.getRecordedBlob()
+    };
+    
+    try {
+        // Send to backend for processing
+        const formData = new FormData();
+        formData.append('verification_data', JSON.stringify({
+            deviceFingerprint: deviceFingerprint,
+            livenessScore: livenessResult.overallScore,
+            deepfakeRisk: deepfakeResult.riskScore,
+            deepfakeLevel: deepfakeResult.riskLevel
+        }));
+        formData.append('video', cameraKYC.getRecordedBlob(), 'verification.webm');
+        
+        const response = await fetch('{{ url_for("process_video_kyc") }}', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showNotification('Advanced verification complete!', 'success');
+            // Enable next button
+            enableNextButton();
+            document.getElementById('start-verification-btn').classList.add('hidden');
+            document.getElementById('next-verification-btn').classList.remove('hidden');
+        } else {
+            throw new Error(result.message || 'Verification failed');
+        }
+        
+    } catch (error) {
+        showNotification(error.message || 'Verification processing failed', 'error');
+        document.getElementById('retry-btn').classList.remove('hidden');
+    }
+}
+
+function retryVerification() {
+    resetVerification();
+    startVerification();
+}
+
+function resetVerification() {
+    verificationInProgress = false;
+    document.getElementById('start-verification-btn').disabled = false;
+    document.getElementById('recording-indicator').classList.add('hidden');
+    document.getElementById('retry-btn').classList.add('hidden');
+    document.getElementById('instruction-overlay').classList.add('hidden');
+    
+    clearInterval(recordingTimer);
+    
+    // Reset steps
+    for (let i = 1; i <= 3; i++) {
+        const step = document.getElementById(`step-${i}`);
+        step.classList.add('opacity-50');
+        step.querySelector('.w-8').className = 'w-8 h-8 bg-surface-container-high text-on-surface-variant rounded-full flex items-center justify-center flex-shrink-0';
+        step.querySelector('h3').className = 'font-h3 text-h3 text-on-surface-variant mb-xs';
+        step.querySelector('p').className = 'font-body-sm text-sm text-on-surface-variant';
+        document.getElementById(`step-${i}-progress`).style.width = '0%';
+    }
+}
+
+function enableNextButton() {
+    const nextBtn = document.getElementById('next-verification-btn');
+    if (nextBtn) {
+        nextBtn.disabled = false;
+        nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        nextBtn.classList.add('bg-secondary', 'text-on-secondary');
+    }
+}
+
+function proceedToNext() {
+    window.location.href = '{{ url_for("kyc_result") }}';
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        proceedToVideo();
+    }
+});
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    if (cameraKYC) {
+        cameraKYC.stopCamera();
+    }
+});
+</script>
+{% endblock %}

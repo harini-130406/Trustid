@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - TrustID{% endblock %}
+
+{% block main_layout %}items-center justify-center{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-6xl mx-auto px-gutter py-xl">
+    <!-- Welcome Header -->
+    <div class="mb-xl text-center">
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl p-lg mb-lg shadow-lg">
+            <h1 class="font-h1 text-h1 mb-sm">Welcome, {{ user.name }}!</h1>
+            <div class="flex items-center justify-center gap-sm mb-sm">
+                <span class="material-symbols-outlined">verified_user</span>
+                <span class="font-body-main text-body-main">Trust ID: {{ wallet.trust_id or 'Not Generated' }}</span>
+            </div>
+            <p class="font-body-sm text-sm opacity-90">
+                Your digital identity is verified and secure
+            </p>
+        </div>
+        <p class="font-body-main text-body-main text-on-surface-variant">
+            Manage your TrustID wallet and share your verified identity securely
+        </p>
+    </div>
+
+    <!-- Status Cards Grid -->
+    <div class="grid md:grid-cols-3 gap-lg mb-xl">
+        <!-- TrustID Wallet Card -->
+        <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div class="flex items-center justify-between mb-md">
+                <div class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl text-on-primary-container">account_balance_wallet</span>
+                </div>
+                <span class="px-sm py-xs bg-secondary text-on-secondary text-[10px] font-bold uppercase tracking-wider rounded-full">
+                    {{ wallet.status | title }}
+                </span>
+            </div>
+            <h2 class="font-h2 text-h2 text-primary mb-sm">TrustID Wallet</h2>
+            <p class="font-body-sm text-body-sm text-on-surface-variant mb-md">
+                Your digital identity credential for seamless verification
+            </p>
+            <div class="space-y-xs mb-md">
+                <div class="flex justify-between text-sm">
+                    <span class="text-on-surface-variant">Credential ID:</span>
+                    <span class="font-mono text-primary">{{ wallet.credential_id or 'TID-XXXXXX' }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-on-surface-variant">Valid Until:</span>
+                    <span class="text-primary">{{ wallet.valid_until or '2025-12-31' }}</span>
+                </div>
+            </div>
+            <button 
+                onclick="openWallet()" 
+                class="w-full bg-primary-container text-on-primary-container py-sm px-md rounded-lg font-button text-button hover:bg-primary active:opacity-70 transition-all duration-200"
+            >
+                Open Wallet
+            </button>
+        </div>
+
+        <!-- Network Standing Card -->
+        <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div class="flex items-center justify-between mb-md">
+                <div class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl text-on-secondary">hub</span>
+                </div>
+                <span class="px-sm py-xs bg-green-100 text-green-800 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                    Trusted
+                </span>
+            </div>
+            <h2 class="font-h2 text-h2 text-primary mb-sm">Network Standing</h2>
+            <p class="font-body-sm text-body-sm text-on-surface-variant mb-md">
+                Your reputation in the TrustID verification network
+            </p>
+            <div class="space-y-xs mb-md">
+                <div class="flex justify-between text-sm">
+                    <span class="text-on-surface-variant">Trust Score:</span>
+                    <span class="text-secondary font-semibold">98/100</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-on-surface-variant">Verifications:</span>
+                    <span class="text-primary">12 successful</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-on-surface-variant">Network Nodes:</span>
+                    <span class="text-primary">47 connected</span>
+                </div>
+            </div>
+            <button class="w-full bg-surface-container-low text-on-surface py-sm px-md rounded-lg font-button text-button hover:bg-surface-container active:opacity-70 transition-all duration-200">
+                View Network
+            </button>
+        </div>
+
+        <!-- Recent Activity Card -->
+        <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div class="flex items-center justify-between mb-md">
+                <div class="w-12 h-12 bg-tertiary-container rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined text-2xl text-on-tertiary-container">history</span>
+                </div>
+                <span class="px-sm py-xs bg-surface-container-high text-on-surface-variant text-[10px] font-bold uppercase tracking-wider rounded-full">
+                    Last 7 days
+                </span>
+            </div>
+            <h2 class="font-h2 text-h2 text-primary mb-sm">Recent Activity</h2>
+            <p class="font-body-sm text-body-sm text-on-surface-variant mb-md">
+                Your latest verification and sharing activities
+            </p>
+            <div class="space-y-sm">
+                <!-- KYC Completion -->
+                <div class="flex items-center gap-sm p-sm bg-surface-container-low rounded">
+                    <span class="material-symbols-outlined text-sm text-secondary">check_circle</span>
+                    <div class="flex-grow min-w-0">
+                        <p class="font-body-sm text-sm text-primary">KYC Verification Completed</p>
+                        <p class="font-body-sm text-xs text-on-surface-variant">
+                            {{ wallet.verification_date[:10] if wallet.verification_date else 'Recently' }}
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- DigiLocker Verification -->
+                {% if wallet.digilocker_verified %}
+                <div class="flex items-center gap-sm p-sm bg-surface-container-low rounded">
+                    <span class="material-symbols-outlined text-sm text-secondary">verified</span>
+                    <div class="flex-grow min-w-0">
+                        <p class="font-body-sm text-sm text-primary">DigiLocker Verified</p>
+                        <p class="font-body-sm text-xs text-on-surface-variant">Documents authenticated</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Video KYC Verification -->
+                {% if wallet.video_kyc_verified %}
+                <div class="flex items-center gap-sm p-sm bg-surface-container-low rounded">
+                    <span class="material-symbols-outlined text-sm text-secondary">face</span>
+                    <div class="flex-grow min-w-0">
+                        <p class="font-body-sm text-sm text-primary">Video KYC Verified</p>
+                        <p class="font-body-sm text-xs text-on-surface-variant">Biometric authentication passed</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Trust ID Creation -->
+                {% if wallet.trust_id %}
+                <div class="flex items-center gap-sm p-sm bg-surface-container-low rounded">
+                    <span class="material-symbols-outlined text-sm text-secondary">account_balance</span>
+                    <div class="flex-grow min-w-0">
+                        <p class="font-body-sm text-sm text-primary">Trust ID Created</p>
+                        <p class="font-body-sm text-xs text-on-surface-variant">Digital identity established</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if not (wallet.digilocker_verified or wallet.video_kyc_verified or wallet.trust_id) %}
+                <div class="text-center py-md">
+                    <span class="material-symbols-outlined text-3xl text-on-surface-variant">inbox</span>
+                    <p class="font-body-sm text-sm text-on-surface-variant mt-xs">No recent activity</p>
+                </div>
+                {% endif %}
+            </div>
+            <button class="w-full bg-surface-container-low text-on-surface py-sm px-md rounded-lg font-button text-button hover:bg-surface-container active:opacity-70 transition-all duration-200 mt-md">
+                View All Activity
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Actions Section -->
+    <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg lg:p-xl mb-xl">
+        <h2 class="font-h2 text-h2 text-primary mb-lg">Quick Actions</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-lg">
+            <button onclick="openWallet()" class="flex flex-col items-center gap-sm p-lg bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors group">
+                <span class="material-symbols-outlined text-3xl text-primary group-hover:text-secondary transition-colors">account_balance_wallet</span>
+                <span class="font-body-sm text-sm text-primary text-center">Open Wallet</span>
+            </button>
+            
+            <button onclick="shareCredential()" class="flex flex-col items-center gap-sm p-lg bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors group">
+                <span class="material-symbols-outlined text-3xl text-primary group-hover:text-secondary transition-colors">share</span>
+                <span class="font-body-sm text-sm text-primary text-center">Share Identity</span>
+            </button>
+            
+            <button onclick="viewHistory()" class="flex flex-col items-center gap-sm p-lg bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors group">
+                <span class="material-symbols-outlined text-3xl text-primary group-hover:text-secondary transition-colors">history</span>
+                <span class="font-body-sm text-sm text-primary text-center">View History</span>
+            </button>
+            
+            <button onclick="openSettings()" class="flex flex-col items-center gap-sm p-lg bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors group">
+                <span class="material-symbols-outlined text-3xl text-primary group-hover:text-secondary transition-colors">settings</span>
+                <span class="font-body-sm text-sm text-primary text-center">Settings</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Security & Trust Indicators -->
+    <div class="grid md:grid-cols-2 gap-lg">
+        <!-- Security Status -->
+        <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg">
+            <h3 class="font-h3 text-h3 text-primary mb-md">Security Status</h3>
+            <div class="space-y-sm">
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <div class="flex-grow">
+                        <p class="font-body-sm text-sm text-primary">Two-Factor Authentication</p>
+                        <p class="font-body-sm text-xs text-on-surface-variant">Enabled</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <div class="flex-grow">
+                        <p class="font-body-sm text-sm text-primary">Wallet Passkey</p>
+                        <p class="font-body-sm text-xs text-on-surface-variant">Set</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    <div class="flex-grow">
+                        <p class="font-body-sm text-sm text-primary">Device Trust</p>
+                        <p class="font-body-sm text-xs text-on-surface-variant">This device trusted</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trust Network -->
+        <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg">
+            <h3 class="font-h3 text-h3 text-primary mb-md">Trust Network</h3>
+            <div class="space-y-sm">
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-secondary text-sm">account_balance</span>
+                    <div class="flex-grow">
+                        <p class="font-body-sm text-sm text-primary">Connected Banks</p>
+                        <p class="font-body-sm text-xs text-on-surface-variant">3 banks</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-secondary text-sm">credit_card</span>
+                    <div class="flex-grow">
+                        <p class="font-body-sm text-sm text-primary">Fintech Partners</p>
+                        <p class="font-body-sm text-xs text-on-surface-variant">7 services</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-secondary text-sm">trending_up</span>
+                    <div class="flex-grow">
+                        <p class="font-body-sm text-sm text-primary">Verification Success</p>
+                        <p class="font-body-sm text-xs text-on-surface-variant">100% success rate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Wallet Unlock Modal -->
+<div id="wallet-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-lg max-w-sm mx-4 w-full">
+        <div class="text-center mb-md">
+            <div class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center mx-auto mb-sm">
+                <span class="material-symbols-outlined text-2xl text-on-primary-container">lock</span>
+            </div>
+            <h3 class="font-h3 text-h3 text-primary">Unlock TrustID Wallet</h3>
+            <p class="font-body-sm text-sm text-on-surface-variant mt-xs">Enter your 4-digit passkey to continue</p>
+        </div>
+        
+        <form onsubmit="unlockWallet(event)" class="space-y-lg">
+            <div class="flex gap-sm justify-center">
+                <input type="text" maxlength="1" class="w-12 h-12 text-center border-2 border-outline-variant rounded-lg font-body-main text-lg text-primary focus:border-primary-container focus:ring-0" onkeyup="moveToNextModal(this, 'modal2')" id="modal1" inputmode="numeric">
+                <input type="text" maxlength="1" class="w-12 h-12 text-center border-2 border-outline-variant rounded-lg font-body-main text-lg text-primary focus:border-primary-container focus:ring-0" onkeyup="moveToNextModal(this, 'modal3')" id="modal2" inputmode="numeric">
+                <input type="text" maxlength="1" class="w-12 h-12 text-center border-2 border-outline-variant rounded-lg font-body-main text-lg text-primary focus:border-primary-container focus:ring-0" onkeyup="moveToNextModal(this, 'modal4')" id="modal3" inputmode="numeric">
+                <input type="text" maxlength="1" class="w-12 h-12 text-center border-2 border-outline-variant rounded-lg font-body-main text-lg text-primary focus:border-primary-container focus:ring-0" onkeyup="moveToNextModal(this, null)" id="modal4" inputmode="numeric">
+            </div>
+            <input type="hidden" id="modal-passkey" required>
+            
+            <div class="flex gap-sm">
+                <button type="button" onclick="closeWalletModal()" class="flex-1 bg-surface-container-low text-on-surface py-sm px-md rounded-lg font-button text-button hover:bg-surface-container active:opacity-70 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" class="flex-1 bg-primary text-on-primary py-sm px-md rounded-lg font-button text-button hover:bg-primary-container active:opacity-70 transition-colors">
+                    Unlock
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openWallet() {
+    document.getElementById('wallet-modal').classList.remove('hidden');
+    document.getElementById('modal1').focus();
+}
+
+function closeWalletModal() {
+    document.getElementById('wallet-modal').classList.add('hidden');
+    // Clear modal inputs
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById('modal' + i).value = '';
+    }
+    document.getElementById('modal-passkey').value = '';
+}
+
+function moveToNextModal(current, nextFieldId) {
+    current.value = current.value.replace(/[^0-9]/g, '');
+    
+    if (current.value.length === 1) {
+        if (nextFieldId) {
+            document.getElementById(nextFieldId).focus();
+        } else {
+            current.blur();
+        }
+    }
+    
+    // Update hidden passkey value
+    let passkey = '';
+    for (let i = 1; i <= 4; i++) {
+        passkey += document.getElementById('modal' + i).value;
+    }
+    document.getElementById('modal-passkey').value = passkey;
+}
+
+async function unlockWallet(event) {
+    event.preventDefault();
+    
+    const passkey = document.getElementById('modal-passkey').value;
+    
+    if (passkey.length !== 4) {
+        showNotification('Please enter complete 4-digit passkey', 'error');
+        return;
+    }
+    
+    try {
+        const formData = new FormData();
+        formData.append('passkey', passkey);
+        
+        const response = await postForm('{{ url_for("unlock_wallet") }}', formData);
+        
+        if (response.success) {
+            showNotification('Wallet unlocked successfully!', 'success');
+            closeWalletModal();
+            window.location.href = response.redirect;
+        } else {
+            throw new Error(response.message || 'Invalid passkey');
+        }
+    } catch (error) {
+        showNotification(error.message || 'Failed to unlock wallet', 'error');
+        // Clear inputs on error
+        for (let i = 1; i <= 4; i++) {
+            document.getElementById('modal' + i).value = '';
+        }
+        document.getElementById('modal-passkey').value = '';
+        document.getElementById('modal1').focus();
+    }
+}
+
+function shareCredential() {
+    window.location.href = '{{ url_for("share_credential") }}';
+}
+
+function viewHistory() {
+    // This would navigate to a detailed history page
+    showNotification('Activity history coming soon!', 'info');
+}
+
+function openSettings() {
+    window.location.href = '{{ url_for("settings") }}';
+}
+
+// Close modal when clicking outside
+document.getElementById('wallet-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeWalletModal();
+    }
+});
+
+// Handle escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeWalletModal();
+    }
+});
+</script>
+{% endblock %}

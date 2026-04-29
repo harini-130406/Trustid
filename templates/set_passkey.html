@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}Set Wallet Passkey - TrustID{% endblock %}
+
+{% block main_layout %}items-center justify-center{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-md mx-auto px-gutter py-xl">
+    <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg md:p-xl">
+        <!-- Header -->
+        <div class="text-center mb-lg">
+            <div class="w-16 h-16 bg-primary-container rounded-full flex items-center justify-center mx-auto mb-md">
+                <span class="material-symbols-outlined text-3xl text-on-primary-container">password</span>
+            </div>
+            <h1 class="font-h1 text-h1 text-primary mb-sm">Secure your TrustID Wallet</h1>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+                Even if someone knows your password, they can't use your TrustID without this passkey
+            </p>
+        </div>
+
+        <!-- Security Info Box -->
+        <div class="bg-primary-container/10 border border-primary-container/30 rounded-lg p-md mb-lg">
+            <div class="flex items-start gap-sm">
+                <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+                <div>
+                    <p class="font-body-sm text-sm text-primary font-medium">Why a passkey?</p>
+                    <p class="font-body-sm text-xs text-on-primary-container">Your passkey adds an extra layer of security for your digital identity and financial transactions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Passkey Form -->
+        <form method="POST" action="{{ url_for('create_wallet') }}" class="space-y-lg" onsubmit="return validatePasskeyForm()">
+            <!-- Passkey Input -->
+            <div class="space-y-sm">
+                <label for="passkey" class="font-label-caps text-label-caps text-on-surface-variant">CREATE 4-DIGIT PASSKEY</label>
+                <div class="flex gap-sm justify-center">
+                    <input type="text" maxlength="1" class="w-14 h-14 text-center border-2 border-outline-variant rounded-lg font-body-main text-lg text-primary focus:border-primary-container focus:ring-0 text-xl font-semibold" onkeyup="moveToNext(this, 'pin2')" id="pin1" inputmode="numeric" pattern="[0-9]">
+                    <input type="text" maxlength="1" class="w-14 h-14 text-center border-2 border-outline-variant rounded-lg font-body-main text-lg text-primary focus:border-primary-container focus:ring-0 text-xl font-semibold" onkeyup="moveToNext(this, 'pin3')" id="pin2" inputmode="numeric" pattern="[0-9]">
+                    <input type="text" maxlength="1" class="w-14 h-14 text-center border-2 border-outline-variant rounded-lg font-body-main text-lg text-primary focus:border-primary-container focus:ring-0 text-xl font-semibold" onkeyup="moveToNext(this, 'pin4')" id="pin3" inputmode="numeric" pattern="[0-9]">
+                    <input type="text" maxlength="1" class="w-14 h-14 text-center border-2 border-outline-variant rounded-lg font-body-main text-lg text-primary focus:border-primary-container focus:ring-0 text-xl font-semibold" onkeyup="moveToNext(this, null)" id="pin4" inputmode="numeric" pattern="[0-9]">
+                </div>
+                <input type="hidden" id="passkey" name="passkey" required>
+                <p class="font-body-sm text-xs text-on-surface-variant text-center">
+                    Choose a 4-digit code that's easy to remember but hard for others to guess
+                </p>
+            </div>
+
+            <!-- Confirm Passkey Input -->
+            <div class="space-y-sm">
+                <label for="confirm_passkey" class="font-label-caps text-label-caps text-on-surface-variant">CONFIRM PASSKEY</label>
+                <div class="flex gap-sm justify-center">
+                    <input type="text" maxlength="1" class="w-14 h-14 text-center border-2 border-outline-variant rounded-lg font-body-main text-lg text-primary focus:border-primary-container focus:ring-0 text-xl font-semibold" onkeyup="moveToNextConfirm(this, 'cpin2')" id="cpin1" inputmode="numeric" pattern="[0-9]">
+                    <input type="text" maxlength="1" class="w-14 h-14 text-center border-2 border-outline-variant rounded-lg font-body-main text-lg text-primary focus:border-primary-container focus:ring-0 text-xl font-semibold" onkeyup="moveToNextConfirm(this, 'cpin3')" id="cpin2" inputmode="numeric" pattern="[0-9]">
+                    <input type="text" maxlength="1" class="w-14 h-14 text-center border-2 border-outline-variant rounded-lg font-body-main text-lg text-primary focus:border-primary-container focus:ring-0 text-xl font-semibold" onkeyup="moveToNextConfirm(this, 'cpin4')" id="cpin3" inputmode="numeric" pattern="[0-9]">
+                    <input type="text" maxlength="1" class="w-14 h-14 text-center border-2 border-outline-variant rounded-lg font-body-main text-lg text-primary focus:border-primary-container focus:ring-0 text-xl font-semibold" onkeyup="moveToNextConfirm(this, null)" id="cpin4" inputmode="numeric" pattern="[0-9]">
+                </div>
+                <input type="hidden" id="confirm_passkey" name="confirm_passkey" required>
+                <div id="passkey-match" class="hidden">
+                    <p class="font-body-sm text-xs text-center">
+                        <span id="match-text" class="font-medium"></span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Security Tips -->
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-sm">
+                <div class="flex items-start gap-sm">
+                    <span class="material-symbols-outlined text-amber-600 text-sm" style="font-variation-settings: 'FILL' 1;">tips_and_updates</span>
+                    <div>
+                        <p class="font-body-sm text-sm text-amber-800 font-medium">Security Tips</p>
+                        <ul class="font-body-sm text-xs text-amber-700 mt-xs space-y-xs">
+                            <li>• Avoid using birth dates, phone numbers, or sequential digits</li>
+                            <li>• Don't share your passkey with anyone</li>
+                            <li>• Store it safely in case you forget</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+                type="submit" 
+                class="w-full bg-secondary text-on-secondary py-md px-lg rounded-lg font-button text-button hover:bg-on-secondary-fixed-variant active:opacity-70 transition-all duration-200 flex items-center justify-center gap-sm"
+            >
+                <span>Set passkey & create wallet</span>
+                <span class="material-symbols-outlined">lock</span>
+            </button>
+        </form>
+
+        <!-- Important Notice -->
+        <div class="mt-lg pt-lg border-t border-surface-container">
+            <div class="space-y-sm">
+                <div class="flex items-start gap-sm">
+                    <span class="material-symbols-outlined text-error text-sm">warning</span>
+                    <p class="font-body-sm text-xs text-error leading-relaxed">
+                        <strong>Important:</strong> If you forget your passkey, you'll need to complete the entire KYC process again to create a new wallet.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Features -->
+    <div class="mt-xl text-center">
+        <div class="inline-flex items-center gap-xl text-on-surface-variant">
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-sm text-secondary">fingerprint</span>
+                <span class="font-label-caps text-label-caps">BIOMETRIC READY</span>
+            </div>
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-sm text-secondary">lock</span>
+                <span class="font-label-caps text-label-caps">END-TO-END ENCRYPTED</span>
+            </div>
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-sm text-secondary">backup</span>
+                <span class="font-label-caps text-label-caps">RECOVERABLE</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function moveToNext(current, nextFieldId) {
+    // Only allow numbers
+    current.value = current.value.replace(/[^0-9]/g, '');
+    
+    if (current.value.length === 1) {
+        if (nextFieldId) {
+            document.getElementById(nextFieldId).focus();
+        } else {
+            current.blur();
+            // Move to confirm passkey
+            document.getElementById('cpin1').focus();
+        }
+    }
+    
+    updatePasskeyValue();
+}
+
+function moveToNextConfirm(current, nextFieldId) {
+    // Only allow numbers
+    current.value = current.value.replace(/[^0-9]/g, '');
+    
+    if (current.value.length === 1) {
+        if (nextFieldId) {
+            document.getElementById(nextFieldId).focus();
+        } else {
+            current.blur();
+        }
+    }
+    
+    updateConfirmPasskeyValue();
+    checkPasskeyMatch();
+}
+
+function updatePasskeyValue() {
+    let passkey = '';
+    for (let i = 1; i <= 4; i++) {
+        passkey += document.getElementById('pin' + i).value;
+    }
+    document.getElementById('passkey').value = passkey;
+}
+
+function updateConfirmPasskeyValue() {
+    let confirmPasskey = '';
+    for (let i = 1; i <= 4; i++) {
+        confirmPasskey += document.getElementById('cpin' + i).value;
+    }
+    document.getElementById('confirm_passkey').value = confirmPasskey;
+}
+
+function checkPasskeyMatch() {
+    const passkey = document.getElementById('passkey').value;
+    const confirmPasskey = document.getElementById('confirm_passkey').value;
+    const matchDiv = document.getElementById('passkey-match');
+    const matchText = document.getElementById('match-text');
+    
+    if (confirmPasskey.length === 4) {
+        matchDiv.classList.remove('hidden');
+        
+        if (passkey === confirmPasskey) {
+            matchText.textContent = '✓ Passkeys match';
+            matchText.className = 'font-medium text-secondary';
+            
+            // Update border colors to green
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById('cpin' + i).classList.add('border-secondary');
+                document.getElementById('cpin' + i).classList.remove('border-error');
+            }
+        } else {
+            matchText.textContent = '✗ Passkeys do not match';
+            matchText.className = 'font-medium text-error';
+            
+            // Update border colors to red
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById('cpin' + i).classList.add('border-error');
+                document.getElementById('cpin' + i).classList.remove('border-secondary');
+            }
+        }
+    } else {
+        matchDiv.classList.add('hidden');
+        
+        // Reset border colors
+        for (let i = 1; i <= 4; i++) {
+            document.getElementById('cpin' + i).classList.remove('border-error', 'border-secondary');
+        }
+    }
+}
+
+function validatePasskeyForm() {
+    const passkey = document.getElementById('passkey').value;
+    const confirmPasskey = document.getElementById('confirm_passkey').value;
+    
+    if (passkey.length !== 4) {
+        showNotification('Please enter a 4-digit passkey', 'error');
+        document.getElementById('pin1').focus();
+        return false;
+    }
+    
+    if (confirmPasskey.length !== 4) {
+        showNotification('Please confirm your 4-digit passkey', 'error');
+        document.getElementById('cpin1').focus();
+        return false;
+    }
+    
+    if (passkey !== confirmPasskey) {
+        showNotification('Passkeys do not match', 'error');
+        document.getElementById('cpin1').focus();
+        return false;
+    }
+    
+    return true;
+}
+
+// Handle paste event for passkey
+document.addEventListener('paste', function(e) {
+    const activeElement = document.activeElement;
+    
+    if (activeElement.id && activeElement.id.startsWith('pin')) {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4);
+        
+        for (let i = 0; i < pastedData.length && i < 4; i++) {
+            document.getElementById('pin' + (i + 1)).value = pastedData[i];
+        }
+        
+        updatePasskeyValue();
+        
+        // Focus next empty input or move to confirm
+        const nextEmpty = Math.min(pastedData.length + 1, 4);
+        if (nextEmpty <= 4) {
+            document.getElementById('pin' + nextEmpty).focus();
+        } else {
+            document.getElementById('cpin1').focus();
+        }
+    }
+});
+
+// Handle backspace
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Backspace') {
+        const activeElement = document.activeElement;
+        
+        if (activeElement.id && (activeElement.id.startsWith('pin') || activeElement.id.startsWith('cpin'))) {
+            if (activeElement.value === '') {
+                e.preventDefault();
+                const currentNum = parseInt(activeElement.id.replace(/\D/g, ''));
+                const prefix = activeElement.id.replace(/[0-9]/g, '');
+                
+                if (currentNum > 1) {
+                    const prevField = document.getElementById(prefix + (currentNum - 1));
+                    prevField.focus();
+                    prevField.value = '';
+                    
+                    if (prefix === 'pin') {
+                        updatePasskeyValue();
+                    } else {
+                        updateConfirmPasskeyValue();
+                        checkPasskeyMatch();
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('pin1').focus();
+});
+</script>
+{% endblock %}

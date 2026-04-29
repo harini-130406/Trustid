@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}KYC Result - TrustID{% endblock %}
+
+{% block main_layout %}items-center justify-center{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-2xl mx-auto px-gutter py-xl">
+    <!-- Progress Section -->
+    <div class="mb-lg text-center">
+        <span class="font-label-caps text-label-caps text-on-surface-variant">Step 4 of 4 – Verification Result</span>
+        <div class="w-full h-1 bg-surface-container-high mt-sm rounded-full overflow-hidden max-w-md mx-auto">
+            <div class="w-full h-full {% if verification_passed %}bg-secondary{% else %}bg-error{% endif %} rounded-full"></div>
+        </div>
+    </div>
+
+    {% if verification_passed %}
+    <!-- Success State -->
+    <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg lg:p-xl text-center">
+        <!-- Success Icon -->
+        <div class="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mx-auto mb-lg">
+            <span class="material-symbols-outlined text-5xl text-on-secondary">check_circle</span>
+        </div>
+
+        <!-- Success Message -->
+        <h1 class="font-h1 text-h1 text-primary mb-md">Identity Verified!</h1>
+        <p class="font-body-main text-body-main text-on-surface-variant mb-xl">
+            Congratulations! Your identity has been successfully verified. You're now ready to create your TrustID wallet.
+        </p>
+
+        <!-- Verification Details -->
+        <div class="space-y-sm mb-xl text-left max-w-md mx-auto">
+            <div class="flex items-center gap-sm bg-surface-container-low p-md rounded-lg">
+                <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                <div>
+                    <p class="font-body-sm text-sm font-medium text-primary">Liveness Detection</p>
+                    <p class="font-body-sm text-xs text-on-surface-variant">Face verified as real person</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-sm bg-surface-container-low p-md rounded-lg">
+                <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">security</span>
+                <div>
+                    <p class="font-body-sm text-sm font-medium text-primary">Deepfake Analysis</p>
+                    <p class="font-body-sm text-xs text-on-surface-variant">Risk level: <span class="font-semibold">{{ deepfake_risk }}</span></p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-sm bg-surface-container-low p-md rounded-lg">
+                <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                <div>
+                    <p class="font-body-sm text-sm font-medium text-primary">Document Verification</p>
+                    <p class="font-body-sm text-xs text-on-surface-variant">DigiLocker data validated</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-sm bg-surface-container-low p-md rounded-lg">
+                <span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">shield_with_heart</span>
+                <div>
+                    <p class="font-body-sm text-sm font-medium text-primary">Fraud Detection</p>
+                    <p class="font-body-sm text-xs text-on-surface-variant">No suspicious activity detected</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Button -->
+        <a 
+            href="{{ url_for('set_wallet_passkey') }}" 
+            class="inline-flex items-center gap-sm bg-secondary text-on-secondary py-md px-lg rounded-lg font-button text-button hover:bg-on-secondary-fixed-variant active:opacity-70 transition-all duration-200"
+        >
+            <span>Create TrustID Wallet</span>
+            <span class="material-symbols-outlined">arrow_forward</span>
+        </a>
+    </div>
+
+    {% else %}
+    <!-- Failure State -->
+    <div class="bg-white rounded-xl shadow-[0_4px_20px_rgba(0,31,63,0.05)] border border-outline-variant p-lg lg:p-xl text-center">
+        <!-- Failure Icon -->
+        <div class="w-20 h-20 bg-error rounded-full flex items-center justify-center mx-auto mb-lg">
+            <span class="material-symbols-outlined text-5xl text-on-error">error</span>
+        </div>
+
+        <!-- Failure Message -->
+        <h1 class="font-h1 text-h1 text-primary mb-md">Verification Failed</h1>
+        <p class="font-body-main text-body-main text-on-surface-variant mb-xl">
+            We couldn't complete your verification due to the following issues. Please try again or contact support if problems persist.
+        </p>
+
+        <!-- Failure Reasons -->
+        <div class="space-y-sm mb-xl text-left max-w-md mx-auto">
+            {% if not liveness_passed %}
+            <div class="flex items-center gap-sm bg-error-container p-md rounded-lg">
+                <span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">error</span>
+                <div>
+                    <p class="font-body-sm text-sm font-medium text-error">Liveness Check Failed</p>
+                    <p class="font-body-sm text-xs text-on-error">Could not verify you're a real person</p>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if deepfake_risk == 'High' %}
+            <div class="flex items-center gap-sm bg-error-container p-md rounded-lg">
+                <span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+                <div>
+                    <p class="font-body-sm text-sm font-medium text-error">High Deepfake Risk</p>
+                    <p class="font-body-sm text-xs text-on-error">Suspicious activity detected</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col gap-sm">
+            <button 
+                onclick="retryVerification()" 
+                class="bg-primary text-on-primary py-md px-lg rounded-lg font-button text-button hover:bg-primary-container active:opacity-70 transition-all duration-200"
+            >
+                Try Again
+            </button>
+            <a 
+                href="#" 
+                onclick="showSupportInfo()"
+                class="font-button text-button text-primary-container hover:underline"
+            >
+                Contact Support
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Security Information -->
+    <div class="mt-xl text-center">
+        <div class="inline-flex items-center gap-xl text-on-surface-variant">
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-sm {% if verification_passed %}text-secondary{% else %}text-error{% endif %}">
+                    {% if verification_passed %}verified_user{% else %}gpp_bad{% endif %}
+                </span>
+                <span class="font-label-caps text-label-caps">
+                    {% if verification_passed %}VERIFIED{% else %}NOT VERIFIED{% endif %}
+                </span>
+            </div>
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-sm text-secondary">lock</span>
+                <span class="font-label-caps text-label-caps">ENCRYPTED</span>
+            </div>
+            <div class="flex items-center gap-sm">
+                <span class="material-symbols-outlined text-sm text-secondary">security</span>
+                <span class="font-label-caps text-label-caps">SECURE</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Modal (Hidden by default) -->
+    <div id="support-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-lg max-w-md mx-4">
+            <h3 class="font-h3 text-h3 text-primary mb-sm">Contact Support</h3>
+            <div class="space-y-sm text-left">
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-sm text-primary">email</span>
+                    <span class="font-body-sm text-sm">support@trustid.com</span>
+                </div>
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-sm text-primary">phone</span>
+                    <span class="font-body-sm text-sm">1800-TRUSTID (1800-8787843)</span>
+                </div>
+                <div class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-sm text-primary">schedule</span>
+                    <span class="font-body-sm text-sm">Mon-Sat: 9AM-6PM IST</span>
+                </div>
+            </div>
+            <div class="mt-lg flex gap-sm">
+                <button 
+                    onclick="closeSupportModal()" 
+                    class="flex-1 bg-primary text-on-primary py-sm px-md rounded-lg font-button text-button hover:bg-primary-container transition-colors"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function retryVerification() {
+    window.location.href = '{{ url_for("video_kyc") }}';
+}
+
+function showSupportInfo() {
+    document.getElementById('support-modal').classList.remove('hidden');
+}
+
+function closeSupportModal() {
+    document.getElementById('support-modal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('support-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeSupportModal();
+    }
+});
+
+// Auto-close success message after delay
+setTimeout(function() {
+    showNotification('Redirecting to wallet setup...', 'info');
+}, 2000);
+</script>
+{% endblock %}
