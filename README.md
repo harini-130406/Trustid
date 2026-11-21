@@ -2789,3 +2789,7 @@ ansible-playbook app.yml
 For this experiment, because we need administrator privileges:
 ansible-playbook -i localhost, -c local app.yml -K
 
+
+sudo systemctl daemon-reload
+sudo systemctl restart jenkins
+
